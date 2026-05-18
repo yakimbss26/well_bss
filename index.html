@@ -3,36 +3,64 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#fb923c" />
-<title>우리반 자랑하기</title>
+<meta name="theme-color" content="#1e3a8a" />
+<title>바른인재 발굴 프로젝트 · 부산과학고</title>
 <link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="icon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-title" content="자랑하기" />
+<meta name="apple-mobile-web-app-title" content="바른인재" />
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Gowun+Dodum&display=swap" rel="stylesheet" />
+<script src="students_data.js"></script>
 <style>
   body { margin: 0; }
-  .hand { font-family: 'Gaegu', cursive; }
+  .myeongjo { font-family: 'Nanum Myeongjo', serif; }
   .sans { font-family: 'Noto Sans KR', sans-serif; }
   .dodum { font-family: 'Gowun Dodum', sans-serif; }
-  @keyframes popIn { 0% { opacity: 0; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
-  @keyframes celebrate { 0% { transform: scale(0.5) rotate(-10deg); opacity: 0; } 50% { transform: scale(1.2) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.4); } 50% { box-shadow: 0 0 0 12px rgba(251, 146, 60, 0); } }
+
+  @keyframes popIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes celebrate { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+  @keyframes shimmer { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
   .pop-in { animation: popIn 0.3s ease-out; }
   .celebrate { animation: celebrate 0.6s ease-out; }
-  .float { animation: float 3s ease-in-out infinite; }
-  .pulse-glow { animation: pulse-glow 2s infinite; }
-  .card-shadow { box-shadow: 0 4px 20px -6px rgba(0,0,0,0.1); }
-  .hover-lift { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-  .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(0,0,0,0.15); }
+  .slide-up { animation: slideUp 0.4s ease-out; }
+  .shimmer { animation: shimmer 2s ease-in-out infinite; }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .card-shadow { box-shadow: 0 10px 30px -10px rgba(30, 58, 138, 0.25); }
+  .hover-lift { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+  .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -10px rgba(30, 58, 138, 0.4); }
+
+  .school-bg {
+    background-image: 
+      linear-gradient(180deg, rgba(241, 245, 249, 0.90) 0%, rgba(219, 234, 254, 0.86) 50%, rgba(191, 219, 254, 0.90) 100%),
+      url('school_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  .school-bg-fallback {
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
+  }
+
+  .dept-character { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); }
+  .dept-class { background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); }
+  .dept-service { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
 </style>
 </head>
 <body>
@@ -41,49 +69,89 @@
 <script type="text/babel" data-type="module">
 const { useState, useMemo, useRef, useEffect } = React;
 
-// Lucide 아이콘을 간단한 SVG 컴포넌트로 래핑
-const Icon = ({ name, className = '', strokeWidth = 2, fill = 'none' }) => {
-  const svgRef = useRef(null);
-  useEffect(() => {
-    if (svgRef.current && window.lucide) {
-      svgRef.current.innerHTML = '';
-      const icon = window.lucide.icons[name];
-      if (icon) {
-        const svg = window.lucide.createElement(icon);
-        svg.setAttribute('stroke-width', strokeWidth);
-        if (fill !== 'none') svg.setAttribute('fill', fill);
-        svgRef.current.appendChild(svg);
-      }
-    }
-  }, [name, strokeWidth, fill]);
-  return <span ref={svgRef} className={`inline-flex ${className}`} />;
+const ADMIN_PASSWORD = 'bss1004';
+
+const MONTHLY_GOALS = {
+  3: '밝고 예의바르게 인사하기',
+  4: '바르고 고운말을 쓰며 부드럽게 소통하기',
+  5: '정직과 규범 준수 / 존중과 감사 표현하기',
+  6: '겸손한 태도로 어려움이 있는 교우 돕고 배려하기',
+  7: '공동체를 위해 봉사하고 헌신하는 시간 할애하기',
+  8: '공동체를 위해 봉사하고 헌신하는 시간 할애하기',
+  9: '늘 성실한 자세로 책임감 있는 수업 자세 가지기',
+  10: '함께하는 공간에서 타인에 대한 배려심 가지기',
+  11: '타인의 성공을 축하하고 실패를 위로하는 공감 능력',
+  12: '주변 환경을 깨끗하게 / 공동체 환경 정비',
+};
+
+const CATEGORIES = {
+  character: {
+    label: '인성 실천',
+    short: '인성',
+    description: '월별 인성 목표 실천 또는 예의·배려·공동체 의식 실천 학생',
+    recommender: '전 교사',
+    icon: '🌱',
+  },
+  class: {
+    label: '학급 공동체',
+    short: '학급',
+    description: '학급 활동에 책임감 있게 참여, 희생·봉사·청소에 솔선수범한 학생',
+    recommender: '담임 교사',
+    icon: '🤝',
+  },
+  service: {
+    label: '학교 봉사 및 기여',
+    short: '봉사',
+    description: '학기당 20시간 이상 봉사활동 (방송부, 운영지원, 재능기부 등)',
+    recommender: '담당 교사',
+    icon: '✨',
+  },
+};
+
+const getCurrentMonthTags = () => {
+  const month = new Date().getMonth() + 1;
+  const monthGoal = MONTHLY_GOALS[month] || '';
+  const baseTags = ['예의가 바릅니다', '친구를 잘 도와요', '책임감이 강해요', '솔선수범 합니다', '꾸준히 노력해요'];
+  return [monthGoal, ...baseTags].filter(Boolean);
 };
 
 function App() {
   const [students, setStudents] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('brag_students') || '[]'); } catch { return []; }
+    try {
+      const saved = localStorage.getItem('bss_students');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return typeof INITIAL_STUDENTS !== 'undefined' ? INITIAL_STUDENTS : [];
   });
+
+  const [recommendationLog, setRecommendationLog] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('bss_log') || '[]'); } catch { return []; }
+  });
+
+  const [teacherName, setTeacherName] = useState(() => localStorage.getItem('bss_teacher') || '');
   const [selectedIds, setSelectedIds] = useState(new Set());
-  const [teacherName, setTeacherName] = useState(() => localStorage.getItem('brag_teacher') || '');
+  const [category, setCategory] = useState('character');
   const [reason, setReason] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [gradeFilter, setGradeFilter] = useState('전체');
   const [classFilter, setClassFilter] = useState('전체');
-  const [csvError, setCsvError] = useState('');
-  const [recommendationLog, setRecommendationLog] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('brag_log') || '[]'); } catch { return []; }
-  });
   const [mode, setMode] = useState('home');
   const [miniIndex, setMiniIndex] = useState(0);
   const [miniCandidates, setMiniCandidates] = useState([]);
-  const [showInstall, setShowInstall] = useState(false);
   const [justBragged, setJustBragged] = useState(null);
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [showPwModal, setShowPwModal] = useState(false);
+  const [pwInput, setPwInput] = useState('');
+  const [pwError, setPwError] = useState('');
+  const [showInstall, setShowInstall] = useState(false);
   const csvInputRef = useRef(null);
 
-  // 데이터 저장
-  useEffect(() => { localStorage.setItem('brag_students', JSON.stringify(students)); }, [students]);
-  useEffect(() => { localStorage.setItem('brag_log', JSON.stringify(recommendationLog)); }, [recommendationLog]);
-  useEffect(() => { localStorage.setItem('brag_teacher', teacherName); }, [teacherName]);
+  useEffect(() => { localStorage.setItem('bss_students', JSON.stringify(students)); }, [students]);
+  useEffect(() => { localStorage.setItem('bss_log', JSON.stringify(recommendationLog)); }, [recommendationLog]);
+  useEffect(() => { localStorage.setItem('bss_teacher', teacherName); }, [teacherName]);
 
+  const currentMonth = new Date().getMonth() + 1;
+  const currentMonthGoal = MONTHLY_GOALS[currentMonth] || '';
   const getWeekKey = (date = new Date()) => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
@@ -93,6 +161,29 @@ function App() {
     return `${d.getFullYear()}-W${String(weekNo).padStart(2, '0')}`;
   };
   const currentWeek = getWeekKey();
+
+  const requireAdmin = (callback) => {
+    if (isAdminUnlocked) { callback(); return; }
+    setShowPwModal(true);
+    setPwInput(''); setPwError('');
+    window._pendingAdminAction = callback;
+  };
+
+  const submitPassword = () => {
+    if (pwInput === ADMIN_PASSWORD) {
+      setIsAdminUnlocked(true);
+      setShowPwModal(false);
+      setPwError('');
+      if (window._pendingAdminAction) {
+        window._pendingAdminAction();
+        window._pendingAdminAction = null;
+      }
+      setTimeout(() => setIsAdminUnlocked(false), 30 * 60 * 1000);
+    } else {
+      setPwError('비밀번호가 일치하지 않습니다.');
+      setPwInput('');
+    }
+  };
 
   const parseCSV = (text) => {
     const lines = text.trim().split(/\r?\n/);
@@ -123,25 +214,27 @@ function App() {
   const handleCSVUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setCsvError('');
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
         const rows = parseCSV(event.target.result);
-        if (rows.length === 0) { setCsvError('CSV에 데이터가 없습니다.'); return; }
-        const keys = Object.keys(rows[0]);
-        const hasName = keys.some(k => ['이름', 'name', '성명'].includes(k.toLowerCase()) || k === '이름');
-        if (!hasName) { setCsvError('CSV에 "이름" 열이 필요합니다.'); return; }
-        const newStudents = rows.map((row, idx) => ({
-          id: `student_${Date.now()}_${idx}`,
-          name: row['이름'] || row['name'] || row['성명'] || '',
-          class: row['반'] || row['class'] || row['학급'] || '',
-          number: row['번호'] || row['no'] || row['출석번호'] || '',
-          photo: (row['사진'] || row['photo'] || row['photo_url'] || row['사진URL'] || '').trim(),
-        })).filter(s => s.name);
+        const newStudents = rows.map((row, idx) => {
+          const grade = parseInt(row['학년'] || row['grade'] || '0');
+          const cls = parseInt(row['반'] || row['class'] || '0');
+          const number = parseInt(row['번호'] || row['no'] || '0');
+          const sno = parseInt(row['학번'] || row['sno'] || `${grade}${cls}${String(number).padStart(2,'0')}`);
+          return {
+            id: `std_${sno}_${Date.now()}_${idx}`,
+            name: row['이름'] || row['name'] || '',
+            grade, class: cls, number, sno,
+            teacher: row['담임'] || row['teacher'] || '',
+            photo: (row['사진'] || row['photo'] || '').trim(),
+          };
+        }).filter(s => s.name);
         setStudents(prev => [...prev, ...newStudents]);
         if (csvInputRef.current) csvInputRef.current.value = '';
-      } catch (err) { setCsvError('CSV 파싱 오류: ' + err.message); }
+        alert(`${newStudents.length}명 추가됨`);
+      } catch (err) { alert('CSV 파싱 오류: ' + err.message); }
     };
     reader.readAsText(file, 'UTF-8');
   };
@@ -149,45 +242,57 @@ function App() {
   const handlePhotoUpload = (studentId, file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      setStudents(prev => prev.map(s => s.id === studentId ? { ...s, photo: e.target.result } : s));
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSize = 400;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize; } }
+        else { if (h > maxSize) { w = w * maxSize / h; h = maxSize; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        setStudents(prev => prev.map(s => s.id === studentId ? { ...s, photo: compressed } : s));
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   };
 
-  const loadSampleData = () => {
-    const samples = [
-      { name: '김민준', class: '1-1', number: '1' }, { name: '이서연', class: '1-1', number: '2' },
-      { name: '박도윤', class: '1-1', number: '3' }, { name: '최지우', class: '1-1', number: '4' },
-      { name: '정하은', class: '1-2', number: '1' }, { name: '강시우', class: '1-2', number: '2' },
-      { name: '윤서준', class: '1-2', number: '3' }, { name: '임채원', class: '1-2', number: '4' },
-      { name: '한지호', class: '1-3', number: '1' }, { name: '오예린', class: '1-3', number: '2' },
-      { name: '배건우', class: '1-3', number: '3' }, { name: '송유진', class: '1-3', number: '4' },
-    ].map((s, idx) => ({ ...s, id: `sample_${Date.now()}_${idx}`, photo: '' }));
-    setStudents(prev => [...prev, ...samples]);
-  };
-
-  const toggleSelect = (id) => {
-    setSelectedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
-  };
   const removeStudent = (id) => {
+    if (!confirm('이 학생을 삭제하시겠습니까?')) return;
     setStudents(prev => prev.filter(s => s.id !== id));
     setSelectedIds(prev => { const n = new Set(prev); n.delete(id); return n; });
   };
 
-  const filteredStudents = useMemo(() => students.filter(s => {
-    const matchClass = classFilter === '전체' || s.class === classFilter;
-    const matchSearch = !searchQuery || s.name.includes(searchQuery) || s.class.includes(searchQuery) || s.number.includes(searchQuery);
-    return matchClass && matchSearch;
-  }), [students, searchQuery, classFilter]);
+  const updateStudent = (id, updates) => {
+    setStudents(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
 
-  const classes = useMemo(() => {
-    const set = new Set(students.map(s => s.class).filter(Boolean));
-    return ['전체', ...Array.from(set).sort()];
-  }, [students]);
+  const filteredStudents = useMemo(() => {
+    return students.filter(s => {
+      const matchGrade = gradeFilter === '전체' || String(s.grade) === gradeFilter;
+      const matchClass = classFilter === '전체' || String(s.class) === classFilter;
+      const matchSearch = !searchQuery ||
+        s.name.includes(searchQuery) ||
+        String(s.sno).includes(searchQuery) ||
+        (s.teacher && s.teacher.includes(searchQuery));
+      return matchGrade && matchClass && matchSearch;
+    });
+  }, [students, searchQuery, gradeFilter, classFilter]);
+
+  const availableClasses = useMemo(() => {
+    const set = new Set(students.filter(s => gradeFilter === '전체' || String(s.grade) === gradeFilter).map(s => s.class).filter(Boolean));
+    return ['전체', ...Array.from(set).sort((a, b) => a - b).map(String)];
+  }, [students, gradeFilter]);
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
 
   const startMiniMode = () => {
-    if (!teacherName.trim()) { alert('먼저 선생님 이름을 입력해주세요.'); return; }
-    if (students.length === 0) { alert('학생 명단이 비어있어요.'); return; }
+    if (!teacherName.trim()) { alert('먼저 선생님 성함을 입력해주세요.'); return; }
+    if (students.length === 0) { alert('학생 명단이 없습니다.'); return; }
     const shuffled = [...students].sort(() => Math.random() - 0.5);
     setMiniCandidates(shuffled.slice(0, Math.min(12, students.length)));
     setMiniIndex(0);
@@ -196,14 +301,18 @@ function App() {
 
   const bragOne = (student, quickReason = '') => {
     const entry = {
-      timestamp: new Date().toLocaleString('ko-KR'), week: currentWeek,
-      teacher: teacherName.trim(), studentName: student.name,
-      class: student.class, number: student.number,
-      reason: quickReason || reason.trim(), mode: 'mini',
+      timestamp: new Date().toLocaleString('ko-KR'),
+      week: currentWeek, month: currentMonth,
+      teacher: teacherName.trim(),
+      studentId: student.id, studentName: student.name,
+      grade: student.grade, class: student.class,
+      number: student.number, sno: student.sno,
+      category, reason: quickReason || reason.trim(),
+      mode: 'mini',
     };
     setRecommendationLog(prev => [entry, ...prev]);
     setJustBragged(student);
-    setTimeout(() => setJustBragged(null), 1500);
+    setTimeout(() => setJustBragged(null), 1300);
   };
 
   const skipMini = () => {
@@ -212,159 +321,249 @@ function App() {
   };
   const nextMini = () => {
     if (miniIndex < miniCandidates.length - 1) { setMiniIndex(miniIndex + 1); setReason(''); }
-    else { setMode('home'); setReason(''); alert('이번 주 자랑 완료! 고생하셨어요 🎉'); }
+    else { setMode('home'); setReason(''); alert('이번 주 추천 완료! 고생하셨습니다.'); }
   };
 
-  const submitBrag = () => {
-    if (selectedIds.size === 0) return alert('자랑할 학생을 선택해주세요.');
-    if (!teacherName.trim()) return alert('선생님 이름을 입력해주세요.');
+  const submitBatch = () => {
+    if (selectedIds.size === 0) return alert('추천할 학생을 선택해주세요.');
+    if (!teacherName.trim()) return alert('선생님 성함을 입력해주세요.');
     const selected = students.filter(s => selectedIds.has(s.id));
     const entries = selected.map(s => ({
-      timestamp: new Date().toLocaleString('ko-KR'), week: currentWeek,
-      teacher: teacherName.trim(), studentName: s.name, class: s.class,
-      number: s.number, reason: reason.trim(), mode: 'full',
+      timestamp: new Date().toLocaleString('ko-KR'),
+      week: currentWeek, month: currentMonth,
+      teacher: teacherName.trim(),
+      studentId: s.id, studentName: s.name,
+      grade: s.grade, class: s.class,
+      number: s.number, sno: s.sno,
+      category, reason: reason.trim(),
+      mode: 'full',
     }));
     setRecommendationLog(prev => [...entries, ...prev]);
-    setSelectedIds(new Set()); setReason('');
-    alert(`${selected.length}명 자랑 완료 🎉`);
+    setSelectedIds(new Set());
+    setReason('');
+    alert(`${selected.length}명 추천 완료`);
   };
 
   const downloadCSV = () => {
-    if (recommendationLog.length === 0) return alert('다운로드할 내역이 없어요.');
-    const headers = ['자랑일시', '주차', '선생님', '학생이름', '반', '번호', '한마디', '모드'];
-    const rows = recommendationLog.map(r => [r.timestamp, r.week, r.teacher, r.studentName, r.class, r.number, r.reason, r.mode]);
+    if (recommendationLog.length === 0) return alert('다운로드할 내역이 없습니다.');
+    const headers = ['추천일시', '주차', '월', '추천교사', '추천부문', '학년', '반', '번호', '학번', '학생이름', '추천사유', '입력모드'];
+    const rows = recommendationLog.map(r => [
+      r.timestamp, r.week, r.month + '월', r.teacher,
+      CATEGORIES[r.category]?.label || r.category,
+      r.grade ? r.grade + '학년' : '',
+      r.class || '', r.number || '', r.sno || '',
+      r.studentName, r.reason || '', r.mode,
+    ]);
     const csv = [headers, ...rows].map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a'); link.href = url;
-    link.download = `자랑_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click(); URL.revokeObjectURL(url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `바른인재추천_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
-  const downloadTemplate = () => {
-    const tpl = '이름,반,번호,사진\n김민준,1-1,1,\n이서연,1-1,2,\n';
+  const downloadStudentTemplate = () => {
+    const tpl = '학년,반,번호,학번,이름,담임,사진\n1,1,1,1101,홍길동,유혜빈,\n';
     const blob = new Blob(['\uFEFF' + tpl], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a'); link.href = url;
+    const link = document.createElement('a');
+    link.href = url;
     link.download = '학생명단_템플릿.csv';
-    link.click(); URL.revokeObjectURL(url);
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const stats = useMemo(() => {
     const thisWeek = recommendationLog.filter(r => r.week === currentWeek);
+    const thisMonth = recommendationLog.filter(r => r.month === currentMonth);
     const uniqueTeachers = new Set(recommendationLog.map(r => r.teacher));
-    const thisWeekTeachers = new Set(thisWeek.map(r => r.teacher));
-    const uniqueStudents = new Set(recommendationLog.map(r => `${r.class}_${r.studentName}`));
+    const thisMonthTeachers = new Set(thisMonth.map(r => r.teacher));
+    const uniqueStudents = new Set(recommendationLog.map(r => r.studentId || r.studentName));
+
     const studentCount = {};
     recommendationLog.forEach(r => {
-      const key = `${r.class}_${r.studentName}`;
-      studentCount[key] = (studentCount[key] || 0) + 1;
+      const key = r.studentId || `${r.grade}_${r.class}_${r.studentName}`;
+      if (!studentCount[key]) {
+        studentCount[key] = { name: r.studentName, grade: r.grade, class: r.class, count: 0, categories: {} };
+      }
+      studentCount[key].count++;
+      studentCount[key].categories[r.category] = (studentCount[key].categories[r.category] || 0) + 1;
     });
-    const topStudents = Object.entries(studentCount).map(([key, count]) => {
-      const [cls, name] = key.split('_'); return { name, class: cls, count };
-    }).sort((a, b) => b.count - a.count).slice(0, 5);
+    const topStudents = Object.values(studentCount).sort((a, b) => b.count - a.count).slice(0, 10);
+
+    const byCategory = { character: 0, class: 0, service: 0 };
+    recommendationLog.forEach(r => { if (byCategory[r.category] !== undefined) byCategory[r.category]++; });
+
     return {
-      total: recommendationLog.length, thisWeek: thisWeek.length,
-      totalTeachers: uniqueTeachers.size, thisWeekTeachers: thisWeekTeachers.size,
-      uniqueStudents: uniqueStudents.size, topStudents,
+      total: recommendationLog.length, thisWeek: thisWeek.length, thisMonth: thisMonth.length,
+      totalTeachers: uniqueTeachers.size, thisMonthTeachers: thisMonthTeachers.size,
+      uniqueStudents: uniqueStudents.size, topStudents, byCategory,
     };
-  }, [recommendationLog, currentWeek]);
+  }, [recommendationLog, currentWeek, currentMonth]);
 
   useEffect(() => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     if (!isStandalone && !localStorage.getItem('installDismissed')) {
-      setTimeout(() => setShowInstall(true), 3000);
+      setTimeout(() => setShowInstall(true), 4000);
     }
   }, []);
 
+  const deptClass = (key) => `dept-${key === 'character' ? 'character' : key === 'class' ? 'class' : 'service'}`;
+
   return (
-    <div className="min-h-screen" style={{
-      background: 'linear-gradient(135deg, #fef3e7 0%, #ffeadb 50%, #ffdfd0 100%)',
-      fontFamily: "'Gowun Dodum', 'Noto Sans KR', sans-serif"
-    }}>
-      {showInstall && (
-        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-stone-900 text-white p-4 z-50 card-shadow pop-in" style={{borderRadius: '16px'}}>
-          <div className="flex items-start gap-3">
-            <span className="text-xl">📱</span>
-            <div className="flex-1 text-sm">
-              <div className="font-bold mb-1">홈화면에 추가하기</div>
-              <div className="text-stone-300 text-xs leading-relaxed">
-                iOS: Safari 공유 → "홈 화면에 추가"<br/>
-                Android: Chrome 메뉴 → "홈 화면에 추가"
-              </div>
+    <div className="min-h-screen school-bg school-bg-fallback sans">
+      {showPwModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4 pop-in">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full card-shadow">
+            <div className="text-center mb-4">
+              <div className="text-4xl mb-2">🔒</div>
+              <h3 className="myeongjo text-xl font-bold text-slate-800">관리자 인증</h3>
+              <p className="dodum text-sm text-slate-500 mt-1">학생 명단 수정에는 비밀번호가 필요합니다</p>
             </div>
-            <button onClick={() => { setShowInstall(false); localStorage.setItem('installDismissed', '1'); }} className="text-stone-400 hover:text-white">✕</button>
+            <input type="password" value={pwInput}
+              onChange={e => { setPwInput(e.target.value); setPwError(''); }}
+              onKeyDown={e => e.key === 'Enter' && submitPassword()}
+              placeholder="비밀번호 입력" autoFocus
+              className="dodum w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none text-center" />
+            {pwError && <div className="text-red-600 text-sm mt-2 text-center">{pwError}</div>}
+            <div className="flex gap-2 mt-4">
+              <button onClick={() => { setShowPwModal(false); setPwError(''); window._pendingAdminAction = null; }}
+                className="flex-1 py-3 border-2 border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50">취소</button>
+              <button onClick={submitPassword}
+                className="flex-1 py-3 bg-blue-700 text-white rounded-xl font-bold hover:bg-blue-800">확인</button>
+            </div>
           </div>
         </div>
       )}
 
-      <header className="bg-white/60 backdrop-blur-sm border-b border-orange-200/50 sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setMode('home')} className="flex items-center gap-2">
-            <div className="w-9 h-9 flex items-center justify-center text-2xl float">🌟</div>
-            <div>
-              <div className="hand text-xl font-bold text-stone-800 leading-tight">우리반 자랑하기</div>
-              <div className="text-[10px] text-stone-500 sans tracking-wider">BRAG BOARD</div>
+      {showInstall && (
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 glass-dark text-white p-4 z-40 rounded-2xl pop-in">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📱</span>
+            <div className="flex-1 text-sm">
+              <div className="font-bold mb-1 dodum">홈화면에 추가하기</div>
+              <div className="text-slate-300 text-xs leading-relaxed">
+                iOS: Safari 공유 → "홈 화면에 추가"<br/>
+                Android: Chrome 메뉴 → "홈 화면에 추가"
+              </div>
             </div>
-          </button>
-          <div className="flex gap-1">
-            <NavBtn active={mode === 'home'} onClick={() => setMode('home')} emoji="🏠" label="홈" />
-            <NavBtn active={mode === 'dashboard'} onClick={() => setMode('dashboard')} emoji="📊" label="현황" />
-            <NavBtn active={mode === 'manage'} onClick={() => setMode('manage')} emoji="👥" label="명단" />
+            <button onClick={() => { setShowInstall(false); localStorage.setItem('installDismissed', '1'); }} className="text-slate-400 hover:text-white">✕</button>
+          </div>
+        </div>
+      )}
+
+      <header className="glass border-b border-blue-200/50 sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <button onClick={() => setMode('home')} className="flex items-center gap-3 text-left">
+              <div className="w-11 h-11 dept-character flex items-center justify-center rounded-xl text-white text-xl">🌟</div>
+              <div>
+                <div className="myeongjo text-lg font-bold text-slate-800 leading-tight">바른인재 발굴 프로젝트</div>
+                <div className="text-[10px] text-slate-500 tracking-wider">부산과학고등학교 · 2026학년도</div>
+              </div>
+            </button>
+            <div className="flex gap-1">
+              <NavBtn active={mode === 'home'} onClick={() => setMode('home')} emoji="🏠" label="홈" />
+              <NavBtn active={mode === 'dashboard'} onClick={() => setMode('dashboard')} emoji="📊" label="현황" />
+              <NavBtn active={mode === 'manage'} onClick={() => requireAdmin(() => setMode('manage'))} emoji="👥" label="명단" />
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6">
+
         {mode === 'home' && (
           <div className="pop-in">
-            <div className="text-center py-8">
-              <div className="text-6xl mb-3 float">🌟</div>
-              <h1 className="hand text-4xl font-bold text-stone-800 mb-2">이번 주, 누구를 자랑할까요?</h1>
-              <p className="dodum text-stone-600">선생님이 본 학생의 좋은 모습, 한 줄이면 충분해요</p>
+            <div className="text-center py-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 glass rounded-full mb-4 dodum text-xs text-blue-800">
+                <span className="w-2 h-2 bg-blue-600 rounded-full shimmer"></span>
+                {currentMonth}월의 인성 목표
+              </div>
+              <h1 className="myeongjo text-3xl md:text-4xl font-bold text-slate-800 mb-3 leading-tight">
+                "{currentMonthGoal}"
+              </h1>
+              <p className="dodum text-slate-600 max-w-xl mx-auto">
+                바른 인성과 품격을 갖춘 과학 리더를 함께 발굴해주세요.<br/>
+                선생님의 따뜻한 눈으로 본 우리 학생의 좋은 모습, 한 줄이면 충분합니다.
+              </p>
             </div>
+
             <div className="max-w-md mx-auto mb-6">
-              <label className="dodum text-sm text-stone-600 mb-2 block">선생님 성함</label>
-              <input type="text" value={teacherName} onChange={e => setTeacherName(e.target.value)} placeholder="예: 홍길동"
-                className="dodum w-full px-4 py-3 bg-white/80 border-2 border-orange-200 focus:border-orange-400 focus:outline-none rounded-2xl text-stone-800" />
+              <label className="dodum text-sm text-slate-600 mb-2 block">선생님 성함</label>
+              <input type="text" value={teacherName} onChange={e => setTeacherName(e.target.value)}
+                placeholder="예: 홍길동"
+                className="dodum w-full px-4 py-3 glass border-2 border-blue-200 focus:border-blue-500 focus:outline-none rounded-xl text-slate-800" />
             </div>
-            <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto mb-8">
+
+            <div className="max-w-3xl mx-auto mb-6">
+              <div className="dodum text-sm text-slate-600 mb-2 text-center">추천 부문을 선택하세요</div>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(CATEGORIES).map(([key, cat]) => (
+                  <button key={key} onClick={() => setCategory(key)}
+                    className={`p-3 rounded-xl text-left transition ${
+                      category === key ? `${deptClass(key)} text-white shadow-lg`
+                      : 'bg-white/70 hover:bg-white text-slate-700 border border-slate-200'
+                    }`}>
+                    <div className="text-2xl mb-1">{cat.icon}</div>
+                    <div className="myeongjo font-bold text-sm leading-tight">{cat.label}</div>
+                    <div className={`text-[10px] mt-1 ${category === key ? 'text-white/80' : 'text-slate-500'} dodum`}>
+                      {cat.recommender}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 p-3 glass rounded-xl dodum text-xs text-slate-600 leading-relaxed">
+                💡 <strong>{CATEGORIES[category].label}</strong>: {CATEGORIES[category].description}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto mb-6">
               <button onClick={startMiniMode} disabled={students.length === 0}
-                className="relative bg-gradient-to-br from-orange-400 to-pink-500 text-white p-6 rounded-3xl text-left hover-lift disabled:opacity-50 disabled:cursor-not-allowed pulse-glow" style={{minHeight: '180px'}}>
+                className="relative dept-character text-white p-6 rounded-2xl text-left hover-lift disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                style={{minHeight: '160px'}}>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-3xl">⚡</span>
-                  <span className="hand text-xs bg-white/20 px-2 py-1 rounded-full">30초 컷</span>
+                  <span className="dodum text-xs bg-white/20 px-2.5 py-1 rounded-full">30초</span>
                 </div>
-                <div className="hand text-3xl font-bold mb-1">미니 자랑</div>
-                <div className="dodum text-sm opacity-90 mb-3">12명 중에서 떠오르는 학생만 자랑해요</div>
-                <div className="hand text-sm font-bold">시작하기 →</div>
+                <div className="myeongjo text-2xl font-bold mb-1">미니 추천</div>
+                <div className="dodum text-sm opacity-90">12명 중 떠오르는 학생만 빠르게</div>
+                <div className="dodum text-sm font-bold mt-3">시작하기 →</div>
               </button>
               <button onClick={() => setMode('full')} disabled={students.length === 0}
-                className="relative bg-white border-2 border-stone-200 p-6 rounded-3xl text-left hover-lift disabled:opacity-50 disabled:cursor-not-allowed" style={{minHeight: '180px'}}>
+                className="relative bg-white border-2 border-slate-200 p-6 rounded-2xl text-left hover-lift disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{minHeight: '160px'}}>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-3xl">👥</span>
-                  <span className="hand text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-full">차분히</span>
+                  <span className="text-3xl">📋</span>
+                  <span className="dodum text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">차분히</span>
                 </div>
-                <div className="hand text-3xl font-bold mb-1 text-stone-800">전체 보기</div>
-                <div className="dodum text-sm text-stone-600 mb-3">모든 학생 사진을 보며 여러 명 자랑하기</div>
-                <div className="hand text-sm font-bold text-stone-700">둘러보기 →</div>
+                <div className="myeongjo text-2xl font-bold mb-1 text-slate-800">전체 보기</div>
+                <div className="dodum text-sm text-slate-600">모든 학생을 보고 여러 명 추천</div>
+                <div className="dodum text-sm font-bold text-slate-700 mt-3">둘러보기 →</div>
               </button>
             </div>
-            <div className="max-w-3xl mx-auto bg-white/60 backdrop-blur-sm rounded-3xl p-5 border border-orange-200/50">
+
+            <div className="max-w-3xl mx-auto glass rounded-2xl p-5 border border-blue-200/50 mb-6">
               <div className="flex items-center justify-between mb-3">
-                <div className="hand text-lg font-bold text-stone-800">📈 이번 주 우리 학교</div>
-                <button onClick={() => setMode('dashboard')} className="hand text-xs text-orange-600">자세히 →</button>
+                <div className="myeongjo text-lg font-bold text-slate-800">📈 우리 학교 추천 현황</div>
+                <button onClick={() => setMode('dashboard')} className="dodum text-xs text-blue-700 hover:text-blue-900">자세히 →</button>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <MiniStat icon="🎉" value={stats.thisWeek} label="자랑 수" />
-                <MiniStat icon="👩‍🏫" value={stats.thisWeekTeachers} label="참여 선생님" />
-                <MiniStat icon="🌟" value={new Set(recommendationLog.filter(r => r.week === currentWeek).map(r => r.studentName)).size} label="자랑받은 학생" />
+              <div className="grid grid-cols-4 gap-2">
+                <MiniStat icon="📅" value={stats.thisMonth} label={`${currentMonth}월`} />
+                <MiniStat icon="👩‍🏫" value={stats.thisMonthTeachers} label="이번 달 참여" />
+                <MiniStat icon="🌟" value={stats.uniqueStudents} label="추천받은 학생" />
+                <MiniStat icon="🎯" value={stats.total} label="누적" />
               </div>
             </div>
+
             {students.length === 0 && (
-              <div className="max-w-md mx-auto mt-8 text-center">
-                <p className="dodum text-stone-600 mb-4">학생 명단을 먼저 등록해주세요</p>
-                <button onClick={() => setMode('manage')} className="hand bg-stone-800 text-white px-6 py-3 rounded-full font-bold">명단 등록하러 가기 →</button>
+              <div className="max-w-md mx-auto text-center mt-4">
+                <p className="dodum text-slate-600 mb-3">학생 명단이 비어 있습니다.</p>
+                <button onClick={() => requireAdmin(() => setMode('manage'))} className="dodum bg-slate-800 text-white px-6 py-3 rounded-full font-bold">
+                  🔒 명단 관리하기
+                </button>
               </div>
             )}
           </div>
@@ -373,49 +572,60 @@ function App() {
         {mode === 'mini' && miniCandidates[miniIndex] && (
           <div className="pop-in max-w-xl mx-auto">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={() => { setMode('home'); setReason(''); }} className="hand text-sm text-stone-500">← 그만하기</button>
-              <div className="flex-1 mx-4 h-2 bg-white/60 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-orange-400 to-pink-500 transition-all" style={{width: `${((miniIndex + 1) / miniCandidates.length) * 100}%`}}></div>
+              <button onClick={() => { setMode('home'); setReason(''); }} className="dodum text-sm text-slate-600">← 그만하기</button>
+              <div className="flex-1 mx-4 h-2 bg-white/80 rounded-full overflow-hidden">
+                <div className="h-full dept-character transition-all" style={{width: `${((miniIndex + 1) / miniCandidates.length) * 100}%`}}></div>
               </div>
-              <span className="hand text-sm text-stone-600">{miniIndex + 1} / {miniCandidates.length}</span>
+              <span className="dodum text-sm text-slate-700">{miniIndex + 1} / {miniCandidates.length}</span>
             </div>
-            <div className="bg-white rounded-3xl card-shadow overflow-hidden">
-              <div className="aspect-square bg-gradient-to-br from-orange-100 to-pink-100 relative">
+
+            <div className="bg-white rounded-2xl card-shadow overflow-hidden">
+              <div className="aspect-square bg-gradient-to-br from-blue-50 to-cyan-50 relative">
                 {miniCandidates[miniIndex].photo ? (
                   <img src={miniCandidates[miniIndex].photo} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-stone-300" style={{fontSize: '120px'}}>👤</div>
+                  <div className="w-full h-full flex items-center justify-center text-blue-200" style={{fontSize: '120px'}}>👤</div>
                 )}
                 {justBragged?.id === miniCandidates[miniIndex].id && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-orange-500/80 to-pink-500/80 flex items-center justify-center celebrate">
+                  <div className={`absolute inset-0 ${deptClass(category)} bg-opacity-90 flex items-center justify-center celebrate`}>
                     <div className="text-center text-white">
                       <div className="text-7xl mb-2">🎉</div>
-                      <div className="hand text-3xl font-bold">자랑 완료!</div>
+                      <div className="myeongjo text-3xl font-bold">추천 완료</div>
+                      <div className="dodum text-sm mt-1 opacity-90">{CATEGORIES[category].label}</div>
                     </div>
                   </div>
                 )}
+                <div className={`absolute top-3 right-3 ${deptClass(category)} text-white text-xs px-3 py-1.5 rounded-full dodum`}>
+                  {CATEGORIES[category].icon} {CATEGORIES[category].label}
+                </div>
               </div>
-              <div className="p-6">
+              <div className="p-5">
                 <div className="text-center mb-4">
-                  <div className="hand text-3xl font-bold text-stone-800">{miniCandidates[miniIndex].name}</div>
-                  <div className="dodum text-sm text-stone-500 mt-1">
-                    {miniCandidates[miniIndex].class} {miniCandidates[miniIndex].number && `${miniCandidates[miniIndex].number}번`}
+                  <div className="myeongjo text-2xl font-bold text-slate-800">{miniCandidates[miniIndex].name}</div>
+                  <div className="dodum text-sm text-slate-500 mt-1">
+                    {miniCandidates[miniIndex].grade}학년 {miniCandidates[miniIndex].class}반 · {miniCandidates[miniIndex].number}번
+                    {miniCandidates[miniIndex].teacher && ` · 담임 ${miniCandidates[miniIndex].teacher}`}
                   </div>
                 </div>
+
                 <input type="text" value={reason} onChange={e => setReason(e.target.value)}
-                  placeholder="한 줄 자랑 (선택) - 예: 친구 도와주는 모습이 예뻐요"
-                  className="dodum w-full px-4 py-3 bg-stone-50 border-2 border-stone-200 focus:border-orange-400 focus:outline-none rounded-2xl text-sm mb-4" />
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {['친구를 잘 도와요', '수업 태도가 좋아요', '인사를 밝게 해요', '꾸준히 노력해요', '청소를 잘해요'].map(tag => (
+                  placeholder="한 줄 추천사유 (선택)"
+                  className="dodum w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-blue-500 focus:outline-none rounded-xl text-sm mb-3" />
+
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {getCurrentMonthTags().slice(0, 6).map(tag => (
                     <button key={tag} onClick={() => setReason(tag)}
-                      className="hand text-xs px-3 py-1.5 bg-orange-50 text-orange-700 rounded-full border border-orange-200 hover:bg-orange-100">{tag}</button>
+                      className="dodum text-xs px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-200 hover:bg-blue-100">{tag}</button>
                   ))}
                 </div>
+
                 <div className="grid grid-cols-3 gap-2">
-                  <button onClick={skipMini} className="hand col-span-1 py-3 bg-stone-100 text-stone-600 rounded-2xl font-bold hover:bg-stone-200">넘기기</button>
-                  <button onClick={() => { bragOne(miniCandidates[miniIndex]); setTimeout(nextMini, 1200); }}
-                    className="hand col-span-2 py-3 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-2xl font-bold hover:shadow-lg">
-                    💝 자랑하기
+                  <button onClick={skipMini} className="dodum col-span-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200">
+                    넘기기
+                  </button>
+                  <button onClick={() => { bragOne(miniCandidates[miniIndex]); setTimeout(nextMini, 1100); }}
+                    className={`dodum col-span-2 py-3 ${deptClass(category)} text-white rounded-xl font-bold hover:shadow-lg`}>
+                    💝 추천하기
                   </button>
                 </div>
               </div>
@@ -425,39 +635,57 @@ function App() {
 
         {mode === 'full' && (
           <div className="pop-in">
-            <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setMode('home')} className="hand text-sm text-stone-500">← 홈으로</button>
-              <div className="hand text-lg font-bold text-stone-800">전체 둘러보기</div>
-              <div className="w-16"></div>
-            </div>
-            {students.length > 0 && (
-              <div className="mb-4 flex flex-wrap items-center gap-3 bg-white/60 p-3 rounded-2xl">
-                <input type="text" placeholder="🔍 이름 검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                  className="dodum flex-1 min-w-[200px] px-4 py-2 border border-stone-200 rounded-full text-sm bg-white" />
-                <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
-                  className="dodum px-4 py-2 border border-stone-200 rounded-full text-sm bg-white">
-                  {classes.map(c => <option key={c} value={c}>{c === '전체' ? '전체 반' : c + '반'}</option>)}
-                </select>
-                <div className="hand text-sm text-stone-700">선택 <span className="text-orange-600 font-bold">{selectedIds.size}</span>명</div>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <button onClick={() => setMode('home')} className="dodum text-sm text-slate-600">← 홈으로</button>
+              <div className="myeongjo text-lg font-bold text-slate-800">전체 학생 보기</div>
+              <div className={`text-xs px-3 py-1.5 rounded-full dodum text-white ${deptClass(category)}`}>
+                {CATEGORIES[category].icon} {CATEGORIES[category].label}
               </div>
-            )}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+            </div>
+
+            <div className="mb-4 glass p-3 rounded-xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <input type="text" placeholder="🔍 이름·학번·담임 검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  className="dodum flex-1 min-w-[180px] px-4 py-2 border border-slate-200 rounded-full text-sm bg-white" />
+                <select value={gradeFilter} onChange={e => { setGradeFilter(e.target.value); setClassFilter('전체'); }}
+                  className="dodum px-3 py-2 border border-slate-200 rounded-full text-sm bg-white">
+                  <option value="전체">전체 학년</option>
+                  <option value="1">1학년</option>
+                  <option value="2">2학년</option>
+                  <option value="3">3학년</option>
+                </select>
+                <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
+                  className="dodum px-3 py-2 border border-slate-200 rounded-full text-sm bg-white">
+                  {availableClasses.map(c => <option key={c} value={c}>{c === '전체' ? '전체 반' : c + '반'}</option>)}
+                </select>
+                <div className="dodum text-sm text-slate-700 ml-auto">
+                  {filteredStudents.length}명 · 선택 <span className="font-bold text-blue-700">{selectedIds.size}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-24">
               {filteredStudents.map(student => (
                 <StudentCard key={student.id} student={student} isSelected={selectedIds.has(student.id)}
-                  onToggle={() => toggleSelect(student.id)} onPhotoUpload={(file) => handlePhotoUpload(student.id, file)}
-                  onRemove={() => removeStudent(student.id)} />
+                  onToggle={() => toggleSelect(student.id)}
+                  onPhotoUpload={(file) => requireAdmin(() => handlePhotoUpload(student.id, file))}
+                  onRemove={() => requireAdmin(() => removeStudent(student.id))}
+                  canManage={isAdminUnlocked} />
               ))}
             </div>
+
             {selectedIds.size > 0 && (
-              <div className="sticky bottom-4 bg-white rounded-3xl card-shadow p-5 pop-in border-2 border-orange-300">
+              <div className="fixed bottom-4 left-4 right-4 max-w-3xl mx-auto bg-white rounded-2xl card-shadow p-4 pop-in border-2 border-blue-300">
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="hand text-base font-bold text-stone-800 mb-1">{selectedIds.size}명을 자랑하려 해요 ✨</div>
-                    <input type="text" placeholder="한 줄 자랑 (선택)" value={reason} onChange={e => setReason(e.target.value)}
-                      className="dodum w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-sm" />
+                  <div className="flex-1 min-w-[180px]">
+                    <div className="myeongjo text-base font-bold text-slate-800 mb-1">
+                      {selectedIds.size}명을 <span className="text-blue-700">{CATEGORIES[category].label}</span>으로 추천
+                    </div>
+                    <input type="text" placeholder="추천 사유 (선택)" value={reason} onChange={e => setReason(e.target.value)}
+                      className="dodum w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
                   </div>
-                  <button onClick={submitBrag} className="hand bg-gradient-to-r from-orange-400 to-pink-500 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg">
-                    💝 자랑하기
+                  <button onClick={submitBatch} className={`dodum ${deptClass(category)} text-white px-6 py-3 rounded-full font-bold hover:shadow-lg`}>
+                    💝 추천 제출
                   </button>
                 </div>
               </div>
@@ -468,62 +696,81 @@ function App() {
         {mode === 'dashboard' && (
           <div className="pop-in">
             <div className="mb-6">
-              <div className="hand text-3xl font-bold text-stone-800 mb-1">우리 학교 자랑 현황</div>
-              <div className="dodum text-sm text-stone-500">{currentWeek} · 실시간 업데이트</div>
+              <div className="myeongjo text-3xl font-bold text-slate-800 mb-1">우리 학교 추천 현황</div>
+              <div className="dodum text-sm text-slate-500">{currentMonth}월 인성 목표: {currentMonthGoal}</div>
             </div>
+
             <div className="grid md:grid-cols-4 gap-3 mb-6">
-              <BigStat emoji="🎉" label="누적 자랑" value={stats.total} />
-              <BigStat emoji="📅" label="이번 주" value={stats.thisWeek} accent />
+              <BigStat emoji="📅" label={`${currentMonth}월`} value={stats.thisMonth} accent />
+              <BigStat emoji="🎉" label="누적 추천" value={stats.total} />
               <BigStat emoji="👩‍🏫" label="참여 선생님" value={stats.totalTeachers} />
-              <BigStat emoji="🌟" label="자랑받은 학생" value={stats.uniqueStudents} />
+              <BigStat emoji="🌟" label="추천받은 학생" value={stats.uniqueStudents} />
             </div>
+
+            <div className="glass rounded-2xl p-5 mb-6">
+              <div className="myeongjo text-lg font-bold text-slate-800 mb-3">📊 부문별 추천 분포</div>
+              <div className="grid grid-cols-3 gap-3">
+                {Object.entries(CATEGORIES).map(([key, cat]) => (
+                  <div key={key} className={`p-4 rounded-xl text-white ${deptClass(key)}`}>
+                    <div className="text-2xl mb-1">{cat.icon}</div>
+                    <div className="dodum text-xs opacity-90">{cat.label}</div>
+                    <div className="myeongjo text-3xl font-bold mt-1">{stats.byCategory[key]}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {stats.topStudents.length > 0 && (
-              <div className="bg-white rounded-3xl p-6 card-shadow mb-6">
-                <div className="hand text-xl font-bold text-stone-800 mb-4">🏆 가장 많이 자랑받은 학생들</div>
-                <div className="space-y-3">
+              <div className="bg-white rounded-2xl p-5 card-shadow mb-6">
+                <div className="myeongjo text-lg font-bold text-slate-800 mb-3">🏆 가장 많이 추천받은 학생</div>
+                <div className="space-y-2">
                   {stats.topStudents.map((s, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-3 bg-gradient-to-r from-orange-50 to-pink-50 rounded-2xl">
-                      <div className="hand text-2xl font-bold text-orange-500 w-8">{idx + 1}</div>
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl">
+                      <div className="myeongjo text-xl font-bold text-blue-700 w-8">{idx + 1}</div>
                       <div className="flex-1">
-                        <div className="hand text-lg font-bold text-stone-800">{s.name}</div>
-                        <div className="dodum text-xs text-stone-500">{s.class}</div>
+                        <div className="myeongjo text-base font-bold text-slate-800">{s.name}</div>
+                        <div className="dodum text-xs text-slate-500">{s.grade}학년 {s.class}반</div>
                       </div>
-                      <div className="hand text-sm font-bold text-stone-700">{s.count}번</div>
+                      <div className="dodum text-sm font-bold text-slate-700">{s.count}회</div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+
             {recommendationLog.length > 0 && (
-              <div className="bg-white rounded-3xl p-6 card-shadow mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="hand text-xl font-bold text-stone-800">최근 자랑 내역</div>
-                  <button onClick={downloadCSV} className="hand text-sm bg-stone-800 text-white px-4 py-2 rounded-full">📥 CSV</button>
+              <div className="bg-white rounded-2xl p-5 card-shadow mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="myeongjo text-lg font-bold text-slate-800">최근 추천 내역</div>
+                  <button onClick={downloadCSV} className="dodum text-sm bg-slate-800 text-white px-4 py-2 rounded-full">📥 CSV</button>
                 </div>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {recommendationLog.slice(0, 20).map((r, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 border-b border-stone-100 last:border-0">
-                      <div className="text-2xl">💝</div>
+                  {recommendationLog.slice(0, 30).map((r, idx) => (
+                    <div key={idx} className="flex items-start gap-3 p-3 border-b border-slate-100 last:border-0">
+                      <div className="text-2xl">{CATEGORIES[r.category]?.icon || '💝'}</div>
                       <div className="flex-1">
                         <div className="dodum text-sm">
-                          <span className="font-bold text-stone-700">{r.teacher}</span> 선생님이{' '}
-                          <span className="font-bold text-orange-600">{r.studentName}</span>
-                          {r.class && <span className="text-stone-500 text-xs"> ({r.class})</span>}
-                          <span className="text-stone-600">을(를) 자랑했어요</span>
+                          <span className="font-bold text-slate-700">{r.teacher}</span> 선생님이{' '}
+                          <span className="font-bold text-blue-700">{r.studentName}</span>
+                          {r.grade && <span className="text-slate-500 text-xs"> ({r.grade}-{r.class})</span>}
+                          {' '}학생을 <span className="font-bold">{CATEGORIES[r.category]?.label || ''}</span>으로 추천
                         </div>
-                        {r.reason && <div className="hand text-sm text-stone-600 mt-1">💬 "{r.reason}"</div>}
-                        <div className="text-xs text-stone-400 mt-1">{r.timestamp}</div>
+                        {r.reason && <div className="dodum text-sm text-slate-600 mt-1">💬 "{r.reason}"</div>}
+                        <div className="text-xs text-slate-400 mt-1">{r.timestamp}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+
             {recommendationLog.length === 0 && (
-              <div className="bg-white/60 rounded-3xl p-12 text-center">
+              <div className="glass rounded-2xl p-12 text-center">
                 <div className="text-6xl mb-4">🌱</div>
-                <div className="hand text-xl text-stone-600 mb-2">아직 자랑 내역이 없어요</div>
-                <button onClick={() => setMode('home')} className="hand bg-orange-500 text-white px-6 py-3 rounded-full mt-2">첫 자랑 시작하기</button>
+                <div className="myeongjo text-xl text-slate-600 mb-2">아직 추천 내역이 없습니다</div>
+                <button onClick={() => setMode('home')} className="dodum dept-character text-white px-6 py-3 rounded-full mt-2 font-bold">
+                  첫 추천 시작하기
+                </button>
               </div>
             )}
           </div>
@@ -531,40 +778,75 @@ function App() {
 
         {mode === 'manage' && (
           <div className="pop-in">
-            <div className="hand text-3xl font-bold text-stone-800 mb-4">학생 명단 관리</div>
-            <div className="bg-white rounded-3xl p-5 card-shadow mb-5">
-              <div className="flex flex-wrap gap-3 mb-4">
-                <button onClick={() => csvInputRef.current?.click()} className="hand bg-stone-800 text-white px-4 py-2.5 rounded-full text-sm">📤 CSV 업로드</button>
-                <input ref={csvInputRef} type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" />
-                <button onClick={downloadTemplate} className="hand border-2 border-stone-200 px-4 py-2.5 rounded-full text-sm">📋 템플릿</button>
-                <button onClick={loadSampleData} className="hand border-2 border-stone-200 px-4 py-2.5 rounded-full text-sm">샘플 추가</button>
-                {students.length > 0 && (
-                  <button onClick={() => { if (confirm('모두 삭제?')) { setStudents([]); setSelectedIds(new Set()); } }}
-                    className="hand text-red-600 border-2 border-red-200 px-4 py-2.5 rounded-full text-sm ml-auto">🗑 전체 삭제</button>
-                )}
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🔓</span>
+                  <div className="myeongjo text-2xl font-bold text-slate-800">학생 명단 관리</div>
+                </div>
+                <div className="dodum text-sm text-slate-500">전체 {students.length}명 · 관리자 모드</div>
               </div>
-              {csvError && <div className="text-sm text-red-700 dodum">⚠️ {csvError}</div>}
-              <div className="hand text-sm text-stone-600">전체 <span className="font-bold text-stone-900">{students.length}</span>명 등록됨</div>
+              <button onClick={() => { setIsAdminUnlocked(false); setMode('home'); }}
+                className="dodum text-xs px-3 py-2 bg-slate-200 text-slate-700 rounded-full hover:bg-slate-300">
+                🔒 잠그기
+              </button>
             </div>
+
+            <div className="bg-white rounded-2xl p-5 card-shadow mb-5">
+              <div className="flex flex-wrap gap-2 mb-3">
+                <button onClick={() => csvInputRef.current?.click()} className="dodum bg-slate-800 text-white px-4 py-2.5 rounded-full text-sm">📤 CSV 업로드</button>
+                <input ref={csvInputRef} type="file" accept=".csv" onChange={handleCSVUpload} className="hidden" />
+                <button onClick={downloadStudentTemplate} className="dodum border-2 border-slate-200 px-4 py-2.5 rounded-full text-sm">📋 템플릿 받기</button>
+                <button onClick={() => { if (confirm('전체 명단을 초기값으로 되돌리시겠습니까? 사진/수정사항이 모두 사라집니다.')) { setStudents(INITIAL_STUDENTS); }}}
+                  className="dodum border-2 border-blue-200 text-blue-700 px-4 py-2.5 rounded-full text-sm">🔄 초기값 복원</button>
+                <button onClick={() => { if (confirm('전체 학생을 삭제할까요?')) setStudents([]); }}
+                  className="dodum text-red-600 border-2 border-red-200 px-4 py-2.5 rounded-full text-sm ml-auto">🗑 전체 삭제</button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <input type="text" placeholder="🔍 이름 검색" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  className="dodum flex-1 min-w-[150px] px-4 py-2 border border-slate-200 rounded-full text-sm" />
+                <select value={gradeFilter} onChange={e => { setGradeFilter(e.target.value); setClassFilter('전체'); }}
+                  className="dodum px-3 py-2 border border-slate-200 rounded-full text-sm bg-white">
+                  <option value="전체">전체 학년</option>
+                  <option value="1">1학년</option>
+                  <option value="2">2학년</option>
+                  <option value="3">3학년</option>
+                </select>
+                <select value={classFilter} onChange={e => setClassFilter(e.target.value)}
+                  className="dodum px-3 py-2 border border-slate-200 rounded-full text-sm bg-white">
+                  {availableClasses.map(c => <option key={c} value={c}>{c === '전체' ? '전체 반' : c + '반'}</option>)}
+                </select>
+              </div>
+              <div className="dodum text-xs text-slate-500 mt-3 leading-relaxed">
+                💡 학생 카드에 마우스를 올리면 사진 변경, 정보 수정, 삭제 버튼이 나타납니다.
+              </div>
+            </div>
+
             {students.length === 0 ? (
-              <div className="bg-white/60 rounded-3xl p-12 text-center">
+              <div className="glass rounded-2xl p-12 text-center">
                 <div className="text-6xl mb-4">👥</div>
-                <div className="hand text-xl text-stone-600 mb-2">학생 명단이 비어있어요</div>
-                <div className="dodum text-sm text-stone-500">CSV를 업로드하거나 샘플로 시작해보세요</div>
+                <div className="myeongjo text-xl text-slate-600 mb-2">학생 명단이 없습니다</div>
+                <div className="dodum text-sm text-slate-500 mb-4">초기값 복원 또는 CSV 업로드로 시작하세요</div>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {filteredStudents.map(student => (
                   <StudentCard key={student.id} student={student} isSelected={false} onToggle={() => {}}
-                    onPhotoUpload={(file) => handlePhotoUpload(student.id, file)} onRemove={() => removeStudent(student.id)} manageMode />
+                    onPhotoUpload={(file) => handlePhotoUpload(student.id, file)}
+                    onRemove={() => removeStudent(student.id)}
+                    canManage={true} manageMode
+                    onEdit={(updates) => updateStudent(student.id, updates)} />
                 ))}
               </div>
             )}
           </div>
         )}
       </main>
-      <footer className="py-8 text-center text-xs text-stone-500 dodum">
-        우리반 자랑하기 · 브라우저에서만 처리되는 안전한 데이터
+
+      <footer className="py-8 text-center text-xs text-slate-500 dodum">
+        부산과학고등학교 · 바른인재 발굴 프로젝트 · 2026학년도
+        <br/>
+        <span className="text-slate-400">데이터는 브라우저에 안전하게 저장됩니다</span>
       </footer>
     </div>
   );
@@ -572,56 +854,121 @@ function App() {
 
 function NavBtn({ active, onClick, emoji, label }) {
   return (
-    <button onClick={onClick} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm hand transition ${active ? 'bg-stone-800 text-white' : 'text-stone-600 hover:bg-white/60'}`}>
+    <button onClick={onClick} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm dodum transition ${active ? 'bg-slate-800 text-white' : 'text-slate-700 hover:bg-white/60'}`}>
       <span>{emoji}</span>
       <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
+
 function MiniStat({ icon, value, label }) {
   return (
     <div className="text-center">
-      <div className="text-2xl mb-1">{icon}</div>
-      <div className="hand text-2xl font-bold text-stone-800">{value}</div>
-      <div className="dodum text-[11px] text-stone-500 leading-tight">{label}</div>
+      <div className="text-xl mb-1">{icon}</div>
+      <div className="myeongjo text-2xl font-bold text-slate-800">{value}</div>
+      <div className="dodum text-[11px] text-slate-500 leading-tight">{label}</div>
     </div>
   );
 }
+
 function BigStat({ emoji, label, value, accent }) {
   return (
-    <div className={`${accent ? 'bg-gradient-to-br from-orange-400 to-pink-500 text-white' : 'bg-white text-stone-800'} rounded-3xl p-5 card-shadow`}>
+    <div className={`${accent ? 'dept-character text-white' : 'bg-white text-slate-800'} rounded-2xl p-5 card-shadow`}>
       <div className="text-3xl mb-2">{emoji}</div>
-      <div className={`dodum text-xs ${accent ? 'text-white/80' : 'text-stone-500'} mb-1`}>{label}</div>
-      <div className="hand text-4xl font-bold">{value}</div>
+      <div className={`dodum text-xs ${accent ? 'text-white/80' : 'text-slate-500'} mb-1`}>{label}</div>
+      <div className="myeongjo text-4xl font-bold">{value}</div>
     </div>
   );
 }
-function StudentCard({ student, isSelected, onToggle, onPhotoUpload, onRemove, manageMode }) {
+
+function StudentCard({ student, isSelected, onToggle, onPhotoUpload, onRemove, canManage, manageMode, onEdit }) {
   const photoInputRef = useRef(null);
+  const [editing, setEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    name: student.name, grade: student.grade,
+    class: student.class, number: student.number, teacher: student.teacher || ''
+  });
+
   const handlePhotoClick = (e) => { e.stopPropagation(); photoInputRef.current?.click(); };
   const handleFileChange = (e) => { const file = e.target.files[0]; if (file) onPhotoUpload(file); if (photoInputRef.current) photoInputRef.current.value = ''; };
+
+  const saveEdit = () => {
+    if (onEdit) {
+      onEdit({
+        name: editData.name,
+        grade: parseInt(editData.grade) || student.grade,
+        class: parseInt(editData.class) || student.class,
+        number: parseInt(editData.number) || student.number,
+        teacher: editData.teacher,
+      });
+    }
+    setEditing(false);
+  };
+
   return (
     <div onClick={manageMode ? undefined : onToggle}
-      className={`relative bg-white rounded-2xl overflow-hidden hover-lift ${manageMode ? '' : 'cursor-pointer'} ${isSelected ? 'ring-4 ring-orange-400' : ''}`}>
+      className={`relative bg-white rounded-xl overflow-hidden hover-lift ${manageMode ? '' : 'cursor-pointer'} ${isSelected ? 'ring-4 ring-blue-500' : ''}`}>
       {isSelected && (
-        <div className="absolute top-2 right-2 w-7 h-7 bg-orange-500 text-white flex items-center justify-center rounded-full z-10 pop-in font-bold">✓</div>
+        <div className="absolute top-2 right-2 w-7 h-7 bg-blue-600 text-white flex items-center justify-center rounded-full z-10 pop-in font-bold">✓</div>
       )}
-      <div className="aspect-square bg-gradient-to-br from-orange-50 to-pink-50 relative group">
+      <div className="aspect-square bg-gradient-to-br from-blue-50 to-cyan-50 relative group">
         {student.photo ? (
           <img src={student.photo} alt={student.name} className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-stone-300" style={{fontSize: '60px'}}>👤</div>
+          <div className="w-full h-full flex items-center justify-center text-blue-200" style={{fontSize: '50px'}}>👤</div>
         )}
-        <button onClick={handlePhotoClick} className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full hand opacity-0 group-hover:opacity-100 transition">📷 사진</button>
-        <button onClick={(e) => { e.stopPropagation(); onRemove(); }} className="absolute top-2 left-2 w-6 h-6 bg-black/60 text-white flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-600">✕</button>
+        <div className="absolute top-2 left-2 dodum text-[10px] bg-black/60 text-white px-2 py-0.5 rounded-full">
+          {student.grade}-{student.class}-{String(student.number).padStart(2, '0')}
+        </div>
+        {canManage && (
+          <>
+            <button onClick={handlePhotoClick} className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full dodum opacity-0 group-hover:opacity-100 transition">
+              📷 사진
+            </button>
+            {manageMode && (
+              <button onClick={(e) => { e.stopPropagation(); setEditing(true); }} className="absolute bottom-2 right-2 bg-blue-600/80 text-white text-xs px-2 py-1 rounded-full dodum opacity-0 group-hover:opacity-100 transition">
+                ✏️ 수정
+              </button>
+            )}
+            <button onClick={(e) => { e.stopPropagation(); onRemove(); }} className="absolute top-7 left-2 w-6 h-6 bg-black/60 text-white flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-red-600">
+              ✕
+            </button>
+          </>
+        )}
         <input ref={photoInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
       </div>
+
       <div className="p-2.5">
-        <div className="hand text-base font-bold text-stone-800 truncate">{student.name}</div>
-        <div className="dodum text-[11px] text-stone-500">
-          {student.class}{student.class && student.number && ' · '}{student.number && `${student.number}번`}
-          {!student.class && !student.number && <span className="text-stone-400">정보 없음</span>}
-        </div>
+        {editing ? (
+          <div className="space-y-1" onClick={e => e.stopPropagation()}>
+            <input value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} placeholder="이름"
+              className="dodum w-full px-2 py-1 text-sm border border-slate-200 rounded" />
+            <div className="flex gap-1">
+              <input value={editData.grade} onChange={e => setEditData({...editData, grade: e.target.value})} placeholder="학년"
+                className="dodum w-1/3 px-1 py-1 text-xs border border-slate-200 rounded" />
+              <input value={editData.class} onChange={e => setEditData({...editData, class: e.target.value})} placeholder="반"
+                className="dodum w-1/3 px-1 py-1 text-xs border border-slate-200 rounded" />
+              <input value={editData.number} onChange={e => setEditData({...editData, number: e.target.value})} placeholder="번호"
+                className="dodum w-1/3 px-1 py-1 text-xs border border-slate-200 rounded" />
+            </div>
+            <input value={editData.teacher} onChange={e => setEditData({...editData, teacher: e.target.value})} placeholder="담임"
+              className="dodum w-full px-2 py-1 text-xs border border-slate-200 rounded" />
+            <div className="flex gap-1">
+              <button onClick={saveEdit} className="flex-1 dodum text-xs bg-blue-600 text-white py-1 rounded">저장</button>
+              <button onClick={() => setEditing(false)} className="flex-1 dodum text-xs bg-slate-200 text-slate-700 py-1 rounded">취소</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="myeongjo text-base font-bold text-slate-800 truncate">{student.name}</div>
+            <div className="dodum text-[11px] text-slate-500">
+              {student.grade}학년 {student.class}반 · {student.number}번
+            </div>
+            {student.teacher && (
+              <div className="dodum text-[10px] text-slate-400 truncate">담임 {student.teacher}</div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

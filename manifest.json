@@ -1,12 +1,12 @@
 {
-  "name": "우리반 자랑하기",
-  "short_name": "자랑하기",
-  "description": "선생님이 학생을 자랑하는 주간 추천 앱",
+  "name": "바른인재 발굴 프로젝트 · 부산과학고",
+  "short_name": "바른인재",
+  "description": "부산과학고등학교 바른인재 발굴 프로젝트 추천 앱",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#fef3e7",
-  "theme_color": "#fb923c",
+  "background_color": "#dbeafe",
+  "theme_color": "#1e3a8a",
   "icons": [
     {
       "src": "icon-192.png",
